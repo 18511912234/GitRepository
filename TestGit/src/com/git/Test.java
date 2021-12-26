@@ -8,4 +8,13 @@ public class Test {
     public static void main(String[] args) {
         System.out.println("测试git和idea集成");
     }
+
+    public Test() {
+    }
+
+    public void test(){
+        String name;
+
+
+    }
 }
