@@ -1,0 +1,133 @@
+
+git的使用流程
+
+本地操作
+
+一.代码提交及准备
+前提：已安装好git
+1.在本地创建一个文件夹：GitRepository(本地仓库)
+2.进入到git终端
+3.设置签名：设置用户名和邮箱
+  设置用户名：git config --global user.name "wangfengwei"
+  设置邮箱：git config --global user.email "w18511912234@163.com"
+4.初始化本地仓库(需要进入到GitRepository下)：git init (执行完这条命令后会在GitRepository目录下创建一个 .git 目录，通过ls -a查看)
+
+重要：工作中首先要在GitRepository目录下创建一个文件：例如 Demo.txt(当作工作区)，这时候这个文件和git没有任何关系
+
+5.把工作区的东西提交到暂存区：git add Demo.txt(执行完这条命令后会将Demo.txt提交到暂存区)
+6.把暂存区的东西提交到本地库：git commit -m "注释信息" Demo.txt(执行完这条命令后这个文件才会到本地库， -m后面是对这次提交的备注)
+
+注意：
+a：不放在本地仓库的文件 git是不进行管理的
+b：即使放到本地仓库的文件，git也不进行管理，必须通过git add 命令添加到暂存区，再通过git commit从暂存区提交到本地仓库才行
+
+git status命令使用：查看状态
+a:当GitRepository(本地仓库)下没有文件时执行 git status
+b:在GitRepository(本地仓库)下创建一个Demo2.txt文件，这时候执行 git status
+c:当执行 git add  Demo2.txt 把这个文件提交到暂存区后执行 git status
+d:当执行 git commit -m "xxx" Demo2.txt 把暂存区的文件提交到本地库后再执行 git status
+e:修改Demo2.txt里面的内容后，再次执行 git status
+f:执行 git add  Demo2.txt 把这个文件提交到暂存区后执行 git status
+e:执行 git commit -m "xxx" Demo2.txt 把暂存区的文件提交到本地库后再执行 git status
+
+git log的使用：查看历史记录
+a：git log：可以查看最近到历史的全部提交记录，记录包含唯一标签(commit 后面的就是)，提交的作者，时间，-m后的内容
+b：git log --pretty=oneline：历史提交记录每次通过一行展示(只包含索引和提交的备注)
+c：git loh --oneline：历史提交记录每次通过一行展示(只包含索引前几个字符和提交的备注)
+d:git reflog:历史每次提交的记录，包含索引和提交备注
+
+reset命令的使用：回退或前进历史版本  --hard参数；本地库回退的同时 暂存区和工作区都会回退(工作中用的最多)
+a：git reset --hard 历史索引号--->回退的历史版本，查看文件是否回退
+b：git reset --hard 指定索引号--->前进到指定版本，查看文件是否前进
+                                 --mixed参数：本地库回退的同时，暂存区跟着回退，但是工作区不动
+                                 --soft参数：本地库回退的同时，暂存区和工作区都不动
+
+
+文件删除与找回删除
+0.新建文件 test2.txt
+1.删除工作区test2.txt,此时暂存区和本地库还没有删除,只是删除工作区的
+2.将删除同步到暂存区:git add 删除的文件名
+3.将删除同步到本地库：git commit -m "备注" 删除的文件名
+4.恢复本地库删除文件：通过删除的索引回退到删除版本即可
+
+
+diff比对本地文件的差异
+1.新建文件test3.txt 并添加到本地库
+2.修改test3.txt的内容
+3.git diff 文件名 ---->对比工作区文件和暂存区文件的差异
+4.git diff ------>比较的是工作区中和暂存区中所有的文件的差异
+5.git diff HEAD ----->比较暂存区和
+6.git diff 历史版本索引 文件名：比较的是暂存区和本地库的内容
+
+二.分支(重中之重)
+1.查看分支:git branch -v (查看全部分支)
+2.创建分支:git branch 分支名
+3.切换分支:git checkout 分支名(例如：git checkout branch01)
+4.切换到自己的分支上之后增加或修改内容，之后再次提交到暂存区，提交到本地库
+注意：* 在哪个分支前代表当前在哪个分支上操作
+
+三.分支合并及解决分支合并遇到的冲突问题
+1.在branch01分支下新增内容
+2.添加到暂存区，添加到本地库
+3.切换到master分支(主分支)--->可以看到master分支内容没变，branch01分支内容是变化后的
+4.在master分支下新增内容--提交到暂存区，提交到本地库---查看分支
+5.再次切换到branch01分支查看
+6.把branch01分支的内容合并到mater分支，因为是要合并到主分支上，所以要在master分支上合并
+7.切换到master分支,将branch01的内容合并到master上
+8.git merge 要合并到master分支的分支(例如：git merge branch01),发现报下面的错误，意思就是合并冲突
+  /*CONFLICT (content): Merge conflict in demo1.txt
+  Automatic merge failed; fix conflicts and then commit the result.*/
+9.查看文件 cat 文件名(cat demo1.txt)
+注意：什么情况下合并分支会产生冲突？不同的分支都在同一个文件的同一个位置修改，那么如何解决冲突呢？
+10.进入文件内手动删除不想要的内容(需要内部商议)
+11.手动删除后再通过 git add 文件名  提交到暂存区
+12.通过 git commit -m "" 文件名 提交到本地库，发现失败，因为带着文件名，把文件名去掉在提交就可以啦
+13.通过 git commit -m "" 提交到本地库
+这样就解决啦合并冲突的问题
+
+远程操作与本地交互(通过github)
+一.准备工作
+1.创建一个github账号:在github.com上注册一个github账号
+2.创建本地仓库：GitRepository  并初始化
+3.在工作区创建一个测试文件并提交到暂存区和本地库
+4.创建远程库
+  创建远程库流程：登录到github---点击右上角+号选择New Repository---在Repository name下创建库名并填写描述
+  选择私有库还是公共库-----选择或不选一个文件-----点击创建即可----选择code可以看到创建的远程库和远程库地址
+  远程库地址：https://github.com/18511912234/GitRepository.git
+5.在本地将远程库地址保存为别名(因为远程库地址太长啦，每次复制都很麻烦)
+  a: 通过git remote -v 查看远程库地址有没有别名，为空就是没有
+  b：给远程库地址起一个别名：git remote add  自定义别名 远程库地址
+     git remote add wfw https://github.com/18511912234/GitRepository.git
+  c：再次查看
+     wfw	https://github.com/18511912234/GitRepository.git (fetch)
+     wfw	https://github.com/18511912234/GitRepository.git (push)
+6.把本地库的数据推送到远程库：git push 别名/远程库地址 分支名(推送哪个分支到远程库)
+  git push wfw master  推送成功后返回如下：
+  * [new branch]      master -> master  代表从本地master分支 --->远程master分支，到远程库查看能看到内容啦
+7.另一个开发B要在远程库上开发新的代码，那么得先把远程库的内容拉取到本地：gil clone 远程地址
+  a:选择一个存放目录的地址：执行命令 git clone 远程地址    进行克隆
+    注意：克隆操作可以帮助我们完成三件事：a：初始化本地库 b：远程库内容完整的复制到本地 c：自动创建远程库别名(进入到目录查看是origin)
+8.另一个开发B开始开发东西,首先的进入到克隆下来后的这个目录里面创建，例如test2.txt
+9.将test2.txt提交到暂存区，提交到本地库
+10.推送到远程库: git push origin master(origin 是克隆时候自动出来的远程库别名)
+   应该提示开发B登录它的账号和密码，登录后才能推送，登录后push发现报错，是因为开发B没有加入团队
+11.A登录账号邀请开发B加入团对(进入到github---选择settings---选择Manage access邀请成员，之后复制出邀请链接并发送给邀请的成员,被
+   邀请的成员打开这个链接 选择Accept iniv...接收邀请)
+12.这时候开发B再次登录这个账号push ，推送到远程库后到远程库查看 成功
+13.A查看开发B开发的内容是否推送成功，远程库目录是否更新
+14.A开始拉取远程库的内容：git fetch 远程库别名 远程库对应的分支,这时候只是将远程库内容下载到本地，工作区内容并没更新
+   git push wfw master
+15.进行合并操作(这时候应该A在本地工作区的master分支)：git merge A开发对远程库的别名/master  是把B开发的内容合并到master
+   git merge wfw/master
+16远程库的拉取可以这样操作：git pull A开发对远程库的别名 master(它等同于14和15步骤的合并成一步操作)
+
+二.协作开发时候冲突的解决
+什么情况下会冲突
+1.B开发拉去C文件进行修改后push到了远程库第1行
+2.A开发也修改了C文件的第1行
+3.待B开发推送到远程库后，A开发也把自己的修改推送到远程库
+这时候就产生冲突啦，解决方案
+1.A开发先重远程库拉取最新代码
+2.手动解决冲突
+3.再次推送到远程仓库(要先提交到暂存取，本地库，再提交到远程仓库)
+
